@@ -1,0 +1,10 @@
+{
+  "context": "Company checking possible employee asset misuse",
+  "description": "An internal audit flagged repeated personal cash withdrawals and transfers made using a company expense account by an employee in the operations department.",
+  "evidence_items": [
+    "2024-01-15: Employee Mark Reyes withdrew $600.00 in cash using the company expense card issued for account #77341205.",
+    "January 29, 2024: A transfer of $1,200.00 was made from the department petty cash account to a personal account without an approved expense report.",
+    "2024-02-10: Manager Susan Lee flagged the transactions during a routine review and requested receipts, none were provided.",
+    "Email from mark.reyes@examplecorp.com to finance stating the withdrawals were for 'client related travel', no travel bookings found in the system."
+  ]
+}

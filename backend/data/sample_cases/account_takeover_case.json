@@ -1,0 +1,10 @@
+{
+  "context": "Fraud team reviewing account takeover indicators",
+  "description": "A customer reported that their online banking login was accessed from an unrecognized device shortly before two large outbound transfers were initiated. The customer denies making these transactions.",
+  "evidence_items": [
+    "2024-03-02: Login to account #48213097 from a new device in a different country, followed by a password reset request from the same session.",
+    "2024-03-02: Email alert sent to customer at jane.doe@example.com confirming password change, customer did not initiate this change.",
+    "03/03/2024: Outbound transfer of $4,750.00 from account #48213097 to an external account, flagged by the bank's monitoring system.",
+    "Support ticket notes: customer John Doe called Fastbank Inc. support line to report suspicious activity and requested an immediate account freeze."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "context": "Auditor reviewing possible vendor misuse",
+  "description": "Several invoices were submitted by a newly onboarded vendor with bank details that closely match those of a current employee, raising concerns about a fictitious vendor scheme.",
+  "evidence_items": [
+    "2024-04-05: Invoice #1001 for $9,850.00 submitted by vendor Brightline Supply Co. for consulting services with no supporting contract on file.",
+    "April 6, 2024: Vendor bank account #55210984 matches the direct deposit account previously used for employee Alan Carter's payroll.",
+    "2024-04-12: Second invoice #1002 for $12,300.00 approved by Alan Carter himself, bypassing the standard two-person approval process.",
+    "Procurement note: vendor contact email listed as alan.carter@brightlinesupply.com, same first/last name as the approving employee."
+  ]
+}

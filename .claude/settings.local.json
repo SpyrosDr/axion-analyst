@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f \"uvicorn app.main:app\")",
+      "Bash(rm -f /tmp/uvicorn3.log)",
+      "Bash(lsof -ti:5173)",
+      "Bash(xargs kill -9)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:5173/src/components/ResultsSections.jsx?t=$\\(date +%s%N\\)\")",
+      "Bash(pkill -f \"uvicorn app.main:app\" 2>/dev/null; rm -f /Users/spyros/Documents/aletheia-investigation-workbench-main/backend/aletheia.db /tmp/uvicorn_ui.log; echo cleaned)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5173/favicon.svg)",
+      "mcp__visualize__read_me",
+      "Bash(cat \"/Users/spyros/Documents/aletheia-investigation-workbench-main/../../../.claude/projects/-Users-spyros-Documents-aletheia-investigation-workbench-main/e6e6b7ca-5769-4c8f-bd7b-1e3546de6450/tool-results/toolu_01MoHytfQ4WM1nGvrVmjnfep.json\" 2>/dev/null | head -c 6000)",
+      "Bash(python3 -c ' *)",
+      "mcp__visualize__show_widget",
+      "Bash(curl -s -o /dev/null -w \"App.jsx: %{http_code}\\\\n\" http://localhost:5173/src/App.jsx)",
+      "Bash(curl -s -o /dev/null -w \"ChangePassword.jsx: %{http_code}\\\\n\" http://localhost:5173/src/components/ChangePassword.jsx)",
+      "Bash(curl -s -o /dev/null -w \"App.css: %{http_code}\\\\n\" http://localhost:5173/src/App.css)",
+      "Bash(curl -s http://localhost:5173/src/App.jsx)",
+      "Bash(curl -s http://localhost:5173/src/App.css)",
+      "Bash(xargs kill)",
+      "Bash(kill -9 4693)",
+      "Bash(lsof -ti:8000)",
+      "Bash(python -m pytest -q)",
+      "Bash(python3 -m pytest -q)",
+      "Bash(AI_PROVIDER=mock .venv/bin/uvicorn app.main:app --reload --port 8000)",
+      "Bash(disown)",
+      "Bash(curl -s http://127.0.0.1:8000/docs -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s http://127.0.0.1:8000/docs -o /dev/null -w \"docs: %{http_code}\\\\n\")",
+      "Bash(curl -s http://127.0.0.1:8000/auth/me -o /dev/null -w \"auth/me \\(no token\\): %{http_code}\\\\n\")",
+      "Bash(.venv/bin/python -m app.create_admin admin adminpass123)",
+      "Bash(grep -n \"^input\\\\|input\\\\[type\\\\|^input,\\\\|input {\" /Users/spyros/Documents/aletheia-investigation-workbench-main/frontend/src/App.css)",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/auth/login -d \"username=admin&password=adminpass123\" -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\")",
+      "Bash(echo \"launched pid $!\")",
+      "Bash(ls -la \"/Users/spyros/.claude/projects/-Users-spyros-Documents-aletheia-investigation-workbench-main/\" 2>&1)",
+      "Bash(curl -s http://127.0.0.1:8000/docs -o /dev/null -w \"backend status: %{http_code}\\\\n\")",
+      "Bash(curl -s http://127.0.0.1:8000/docs -o /dev/null -w \"backend: %{http_code}\\\\n\")",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/auth/login -d \"username=admin&password=adminpass123\" -w \"\\\\nHTTP:%{http_code}\\\\n\")"
+    ]
+  }
+}
