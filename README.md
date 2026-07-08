@@ -1,6 +1,6 @@
-# Aletheia Investigation Workbench
+# Axion Analyst Investigation Workbench
 
-Aletheia Investigation Workbench is an AI-assisted fraud investigation tool that helps investigators structure, assess, and document fraud-related cases.
+Axion Analyst Investigation Workbench is an AI-assisted fraud investigation tool that helps investigators structure, assess, and document fraud-related cases.
 
 It is not a fraud detection engine, AML transaction monitoring system, or alert-generation platform. It focuses on the investigation phase after a suspicious case, alert, concern, or internal issue has already been identified. The AI supports the investigator — human review remains central to all conclusions.
 
