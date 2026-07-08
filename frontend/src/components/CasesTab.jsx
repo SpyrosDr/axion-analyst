@@ -114,8 +114,10 @@ function CasesTab({ currentUser, initialCaseId, initialStatusFilter }) {
     }
   }
 
+  const hasPanel = showForm || Boolean(selectedCaseId);
+
   return (
-    <div className="cases-layout">
+    <div className={"cases-layout" + (hasPanel ? "" : " cases-layout-single")}>
       <aside className="sidebar">
         <section className="card">
           <div className="sidebar-header">
@@ -142,44 +144,38 @@ function CasesTab({ currentUser, initialCaseId, initialStatusFilter }) {
             onSearchChange={setSearch}
           />
         </section>
-
-        {showForm && <CaseForm onCaseCreated={handleCaseCreated} />}
       </aside>
 
-      <div className="main-panel">
-        {detailLoading && (
-          <section className="card">
-            <p>Loading case...</p>
-          </section>
-        )}
+      {hasPanel && (
+        <div className="main-panel" key={showForm ? "new-case-form" : selectedCaseId}>
+          {showForm && <CaseForm onCaseCreated={handleCaseCreated} />}
 
-        {detailError && (
-          <section className="card">
-            <p className="error-text">{detailError}</p>
-          </section>
-        )}
+          {!showForm && detailLoading && (
+            <section className="card">
+              <p>Loading case...</p>
+            </section>
+          )}
 
-        {!detailLoading && !detailError && !selectedCase && (
-          <section className="card">
-            <p className="empty-state">
-              Select a case from the list, or create a new one to get started.
-            </p>
-          </section>
-        )}
+          {!showForm && detailError && (
+            <section className="card">
+              <p className="error-text">{detailError}</p>
+            </section>
+          )}
 
-        {!detailLoading && selectedCase && (
-          <CaseDetail
-            caseData={selectedCase}
-            currentUser={currentUser}
-            onEvidenceAdded={handleEvidenceAdded}
-            onCollaboratorsChanged={handleCollaboratorsChanged}
-            onRunAnalysis={handleRunAnalysis}
-            onDeleteCase={handleDeleteCase}
-            analysisLoading={analysisLoading}
-            analysisError={analysisError}
-          />
-        )}
-      </div>
+          {!showForm && !detailLoading && selectedCase && (
+            <CaseDetail
+              caseData={selectedCase}
+              currentUser={currentUser}
+              onEvidenceAdded={handleEvidenceAdded}
+              onCollaboratorsChanged={handleCollaboratorsChanged}
+              onRunAnalysis={handleRunAnalysis}
+              onDeleteCase={handleDeleteCase}
+              analysisLoading={analysisLoading}
+              analysisError={analysisError}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

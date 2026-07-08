@@ -26,7 +26,7 @@ function Login({ onLoggedIn }) {
     <main className="page">
       <div className="app-shell narrow-shell login-shell">
         <section className="card">
-          <p className="eyebrow">Aletheia Investigation Workbench</p>
+          <p className="eyebrow">Axion Analyst Investigation Workbench</p>
           <h2>Sign in</h2>
           <form onSubmit={handleSubmit}>
             <label>

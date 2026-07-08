@@ -16,7 +16,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Aletheia Investigation Workbench",
+    title="Axion Analyst Investigation Workbench",
     description="MVP backend for structured fraud investigation support.",
     version="0.1.0",
     lifespan=lifespan,

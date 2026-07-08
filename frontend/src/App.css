@@ -21,6 +21,8 @@
   --color-warning-bg: #fef3e0;
   --color-danger: #b91c1c;
   --color-danger-bg: #fdecec;
+  --color-awaiting: #64748b;
+  --color-awaiting-bg: #eef1f5;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -50,7 +52,7 @@ body {
 
 .app-header {
   padding: 28px 4px 20px;
-  max-width: 1080px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -89,7 +91,7 @@ body {
 }
 
 .app-shell {
-  max-width: 1080px;
+  max-width: 1400px;
   margin: 0 auto;
   display: grid;
   gap: 24px;
@@ -297,7 +299,7 @@ ul {
 /* Cases layout */
 
 .cases-layout {
-  width: min(1080px, 100%);
+  width: min(1400px, 100%);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 340px 1fr;
@@ -312,6 +314,25 @@ ul {
 
 .cases-layout .card {
   width: 100%;
+}
+
+.cases-layout-single {
+  grid-template-columns: 1fr;
+}
+
+.main-panel {
+  animation: panel-in 0.28s ease;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @media (max-width: 860px) {
@@ -955,6 +976,44 @@ select.status-select {
 
 .stat-value.risk-low {
   color: var(--color-success);
+}
+
+.stat-value.risk-awaiting {
+  color: var(--color-awaiting);
+}
+
+.stat-card-active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.risk-overview {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.risk-pie-chart {
+  flex-shrink: 0;
+}
+
+.risk-pie-total-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  fill: var(--color-text);
+}
+
+.risk-pie-total-label {
+  font-size: 0.7rem;
+  fill: var(--color-text-muted);
+}
+
+.risk-legend-grid {
+  flex: 1;
+  min-width: 220px;
+  margin-top: 0;
 }
 
 .narrow-shell {

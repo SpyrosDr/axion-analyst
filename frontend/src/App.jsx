@@ -68,7 +68,7 @@ function App() {
             <Logo size={36} />
           </span>
           <div>
-            <h1 className="app-title">Aletheia</h1>
+            <h1 className="app-title">Axion Analyst</h1>
             <p className="eyebrow">Investigation Workbench</p>
           </div>
         </div>

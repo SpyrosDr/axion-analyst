@@ -1,21 +1,21 @@
-import re
-
 from sqlalchemy.orm import Session
 
 from app.ai import client as ai_client
 from app.ai.output_schemas import AICaseAnalysis
+from app.ai.pii_patterns import (
+    ACCOUNT_RE,
+    AMOUNT_RE,
+    EMAIL_RE,
+    GENERIC_NUMBER_RE,
+    NAME_RE,
+    ORG_RE,
+)
 from app.config import settings
 from app.models.entity import Entity
 from app.services import case_service, evidence_service
 
 # Lightweight regex/keyword heuristics -- this is a rule-based mock standing in
 # for real entity extraction (NER), not an actual language model.
-AMOUNT_RE = re.compile(r"\$\d[\d,]*(?:\.\d{2})?\b")
-ACCOUNT_RE = re.compile(r"\b(?:acct|account)\s*#?\s*(\d{4,})\b", re.IGNORECASE)
-GENERIC_NUMBER_RE = re.compile(r"\b\d{8,}\b")
-EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
-ORG_RE = re.compile(r"\b[A-Z][\w&]*(?:\s+[A-Z][\w&]*)*\s+(?:Inc|LLC|Ltd|Corp|Co)\.?\b")
-NAME_RE = re.compile(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b")
 
 
 def _scan(text: str, source_evidence_id: int | None, found: dict) -> None:

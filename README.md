@@ -11,6 +11,7 @@ It is not a fraud detection engine, AML transaction monitoring system, or alert-
 * **Multi-user with per-case sharing** — admin-created accounts, JWT login, cases are private to their owner by default, and owners can add colleagues as collaborators with full view/edit access.
 * **Quick Assess** — a stateless one-shot assessment form for a fast first read on a case, with nothing persisted.
 * **Pluggable AI providers** — `mock` (built-in keyword/regex heuristics, no API key needed), `anthropic` (Claude), or `openai`, selected via one environment variable.
+* **Pseudonymization before AI calls** — when using a real provider (`anthropic`/`openai`), person names, email addresses, and account numbers are swapped for consistent fake stand-ins before the case text leaves the system, then mapped back to the real values in the response. See [Security and data handling](#security-and-data-handling).
 
 ## Architecture
 
@@ -18,6 +19,8 @@ It is not a fraud detection engine, AML transaction monitoring system, or alert-
 * **Frontend**: React + Vite (`frontend/`), no router or state library — a deliberately small single-page app. The dev server proxies `/api/*` to the backend.
 
 ## Getting started
+
+Do the one-time setup below for the backend and frontend first. After that, `./dev.sh` from the repo root starts both dev servers together and stops both on Ctrl-C — no need to run them in separate terminals by hand.
 
 ### Backend
 
@@ -88,3 +91,5 @@ This repository should contain only source code and fake sample evidence. It sho
 * production credentials.
 
 Local secrets belong in `backend/.env`, which must not be committed. Public configuration examples live in `backend/.env.example`.
+
+**Pseudonymization**: before any case text is sent to a real AI provider (`anthropic`/`openai`), `backend/app/ai/pseudonymizer.py` detects person names, email addresses, and account numbers (regex-based, the same heuristics the `mock` entity extractor uses) and replaces each with a consistent fake stand-in for that call — e.g. "Jack Doom" becomes "John Doe" everywhere it appears in the context, description, and evidence, so the AI can still correlate the same entity across the text. The real values are restored in the structured result before it's stored or displayed, so they're never persisted in fake form. This reduces exposure of confidential names/emails/accounts to the third-party provider but is not a hard guarantee: the detection is heuristic and can occasionally miss unusual name formats or over-match capitalized phrases that aren't names (over-matching only means extra, harmless masking, not under-masking). The `mock` provider never calls a third party, so this step is skipped entirely when `AI_PROVIDER=mock`.
