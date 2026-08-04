@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 SpyrosDr
+
 SYSTEM_PROMPT = """You are a research assistant supporting professional investigators at the \
 Axion Analyst Investigation Workbench. Given the name of an entity (a person, organization, or \
 other named subject) and an optional entity type, search the public web and produce a neutral, \

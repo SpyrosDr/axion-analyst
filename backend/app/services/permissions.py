@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 SpyrosDr
+
 from app.models.case import Case
 from app.models.user import User
 

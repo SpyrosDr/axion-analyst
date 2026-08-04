@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 SpyrosDr
+
 # Starts backend + frontend dev servers together and stops both on Ctrl-C.
 # Assumes one-time setup is already done (see README.md): backend/.venv with
 # requirements installed, an admin account created, and frontend/node_modules

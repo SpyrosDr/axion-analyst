@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 SpyrosDr
+
 from app.ai.output_schemas import AICaseAnalysis
 from app.ai.pseudonymizer import Pseudonymizer
 from app.config import settings

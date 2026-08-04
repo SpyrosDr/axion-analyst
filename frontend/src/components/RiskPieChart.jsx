@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ * Copyright (C) 2026 SpyrosDr
+ */
+
 const SLICES = [
   { key: "high", label: "High risk", color: "var(--color-danger)" },
   { key: "medium", label: "Medium risk", color: "var(--color-warning)" },

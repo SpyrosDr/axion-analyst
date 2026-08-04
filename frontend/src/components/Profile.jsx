@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ * Copyright (C) 2026 SpyrosDr
+ */
+
 import { useState } from "react";
 import { updateProfile } from "../api";
 import Avatar, { AVATAR_COLORS, DEFAULT_AVATAR_COLOR } from "./Avatar";

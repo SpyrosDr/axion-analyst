@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 SpyrosDr
+
 SYSTEM_PROMPT = """You are a fraud-investigation analysis assistant supporting professional \
 investigators at the Axion Analyst Investigation Workbench. Given a case's context, description, \
 and evidence items, you must:

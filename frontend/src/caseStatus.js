@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ * Copyright (C) 2026 SpyrosDr
+ */
+
 export const STATUSES = ["open", "in_review", "closed"];
 
 const LABELS = { open: "Open", in_review: "In Review", closed: "Closed" };

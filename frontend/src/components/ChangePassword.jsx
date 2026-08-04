@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ * Copyright (C) 2026 SpyrosDr
+ */
+
 import { useState } from "react";
 import { changePassword } from "../api";
 import PasswordField from "./PasswordField";

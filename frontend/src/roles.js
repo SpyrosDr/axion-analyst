@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ * Copyright (C) 2026 SpyrosDr
+ */
+
 export const GLOBAL_ROLES = ["none", "viewer", "editor", "manager"];
 export const CASE_ROLES = ["viewer", "editor", "manager"];
 
