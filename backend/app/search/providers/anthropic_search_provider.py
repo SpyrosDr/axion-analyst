@@ -8,7 +8,7 @@ from app.search.client import SearchProviderError
 from app.search.output_schemas import EntitySearchResult, SearchSource
 from app.search.prompts import SYSTEM_PROMPT, build_user_message
 
-_MAX_TOKENS = 2048
+_MAX_TOKENS = 8192
 
 
 def search_entity(query: str, entity_type: str | None) -> EntitySearchResult:
@@ -21,7 +21,7 @@ def search_entity(query: str, entity_type: str | None) -> EntitySearchResult:
             max_tokens=_MAX_TOKENS,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_message}],
-            tools=[{"type": "web_search_20250305", "name": "web_search"}],
+            tools=[{"type": "web_search_20260209", "name": "web_search"}],
         )
 
         summary_parts: list[str] = []

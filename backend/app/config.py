@@ -20,7 +20,7 @@ class Settings:
     OPENAI_MODEL: str | None = os.getenv("OPENAI_MODEL")
 
     ANTHROPIC_API_KEY: str | None = os.getenv("ANTHROPIC_API_KEY")
-    ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5")
+    ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5")
 
     # Which backend the entity web-search tool uses. Valid values:
     # "mock" | "openai" | "anthropic" | "tavily". "openai"/"anthropic" reuse

@@ -8,7 +8,7 @@ from app.ai.output_schemas import AICaseAnalysis
 from app.ai.prompts import SYSTEM_PROMPT, build_user_message
 from app.config import settings
 
-_MAX_TOKENS = 4096
+_MAX_TOKENS = 16000
 _TOOL_NAME = "submit_case_analysis"
 
 
