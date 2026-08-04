@@ -93,3 +93,23 @@ This repository should contain only source code and fake sample evidence. It sho
 Local secrets belong in `backend/.env`, which must not be committed. Public configuration examples live in `backend/.env.example`.
 
 **Pseudonymization**: before any case text is sent to a real AI provider (`anthropic`/`openai`), `backend/app/ai/pseudonymizer.py` detects person names, email addresses, and account numbers (regex-based, the same heuristics the `mock` entity extractor uses) and replaces each with a consistent fake stand-in for that call — e.g. "Jack Doom" becomes "John Doe" everywhere it appears in the context, description, and evidence, so the AI can still correlate the same entity across the text. The real values are restored in the structured result before it's stored or displayed, so they're never persisted in fake form. This reduces exposure of confidential names/emails/accounts to the third-party provider but is not a hard guarantee: the detection is heuristic and can occasionally miss unusual name formats or over-match capitalized phrases that aren't names (over-matching only means extra, harmless masking, not under-masking). The `mock` provider never calls a third party, so this step is skipped entirely when `AI_PROVIDER=mock`.
+
+## License
+
+Copyright (C) 2026 SpyrosDr
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with this program. If not, see <https://www.gnu.org/licenses/>.
+
+Because this is the AGPL, running a modified version of Axion Analyst as a
+network service obliges you to offer its users the corresponding source of your
+modified version.
