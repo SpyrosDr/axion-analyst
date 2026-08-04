@@ -19,6 +19,13 @@ class Settings:
     ANTHROPIC_API_KEY: str | None = os.getenv("ANTHROPIC_API_KEY")
     ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5")
 
+    # Which backend the entity web-search tool uses. Valid values:
+    # "mock" | "openai" | "anthropic" | "tavily". "openai"/"anthropic" reuse
+    # the API keys/models above via each provider's hosted web-search tool;
+    # "tavily" is a dedicated search API and needs TAVILY_API_KEY.
+    SEARCH_PROVIDER: str = os.getenv("SEARCH_PROVIDER", "mock")
+    TAVILY_API_KEY: str | None = os.getenv("TAVILY_API_KEY")
+
     # Dev-only default -- DO NOT use in production. Override via env var.
     SECRET_KEY: str = os.getenv(
         "SECRET_KEY", "dev-only-insecure-secret-change-me-in-production"

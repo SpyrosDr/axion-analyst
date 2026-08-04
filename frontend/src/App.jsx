@@ -7,6 +7,7 @@ import Profile from "./components/Profile";
 import Avatar from "./components/Avatar";
 import Dashboard from "./components/Dashboard";
 import CasesTab from "./components/CasesTab";
+import ToolsTab from "./components/ToolsTab";
 import { getMe, loadStoredToken, setAuthToken, setUnauthorizedHandler } from "./api";
 
 function App() {
@@ -89,6 +90,13 @@ function App() {
             >
               Cases
             </button>
+            <button
+              type="button"
+              className={"tab-button" + (tab === "tools" ? " active" : "")}
+              onClick={() => setTab("tools")}
+            >
+              Tools
+            </button>
             {user.is_admin && (
               <button
                 type="button"
@@ -138,6 +146,7 @@ function App() {
             initialStatusFilter={initialStatusFilter}
           />
         )}
+        {tab === "tools" && <ToolsTab />}
         {tab === "users" && user.is_admin && <ManageUsers />}
       </div>
 

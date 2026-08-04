@@ -39,6 +39,9 @@ class Case(Base):
     activities = relationship(
         "CaseActivity", back_populates="case", cascade="all, delete-orphan"
     )
+    entity_searches = relationship(
+        "EntitySearch", back_populates="case", cascade="all, delete-orphan"
+    )
 
     @property
     def collaborators(self):

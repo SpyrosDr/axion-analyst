@@ -12,6 +12,10 @@ os.environ["DATABASE_URL"] = f"sqlite:///{_TEST_DB}"
 # a variable that's already set in the environment, so this wins.
 os.environ["AI_PROVIDER"] = "mock"
 
+# Same reasoning as AI_PROVIDER above -- tests must never call a real search
+# provider.
+os.environ["SEARCH_PROVIDER"] = "mock"
+
 import pytest  # noqa: E402
 
 

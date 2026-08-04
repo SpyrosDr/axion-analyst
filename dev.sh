@@ -23,8 +23,28 @@ frontend_pid=""
 
 cleanup() {
   trap - EXIT INT TERM
-  [ -n "$backend_pid" ] && kill -TERM -- "-$backend_pid" 2>/dev/null
-  [ -n "$frontend_pid" ] && kill -TERM -- "-$frontend_pid" 2>/dev/null
+  for pid in "$backend_pid" "$frontend_pid"; do
+    [ -n "$pid" ] && kill -TERM -- "-$pid" 2>/dev/null
+  done
+
+  # uvicorn --reload's worker process can take a moment to release its
+  # resources after SIGTERM, so give both groups a few seconds to exit
+  # gracefully, then force-kill anything left. Without this, a slow child
+  # combined with bash's bare `wait` resuming after a trap (a known bash
+  # quirk) can leave this script hanging even though shutdown was requested.
+  for _ in $(seq 1 20); do
+    still_alive=0
+    for pid in "$backend_pid" "$frontend_pid"; do
+      [ -n "$pid" ] && kill -0 -- "-$pid" 2>/dev/null && still_alive=1
+    done
+    [ "$still_alive" -eq 0 ] && break
+    sleep 0.25
+  done
+  for pid in "$backend_pid" "$frontend_pid"; do
+    [ -n "$pid" ] && kill -KILL -- "-$pid" 2>/dev/null
+  done
+
+  exit 0
 }
 trap cleanup EXIT INT TERM
 

@@ -176,3 +176,18 @@ export function addEvidence(caseId, { title, type, content }) {
 export function runAnalysis(caseId) {
   return request(`/cases/${caseId}/report`, { method: "POST" });
 }
+
+export function runEntitySearch({ query, entity_type, case_id }) {
+  return request("/tools/entity-search", {
+    method: "POST",
+    body: JSON.stringify({ query, entity_type, case_id }),
+  });
+}
+
+export function listEntitySearches({ case_id } = {}) {
+  return request(`/tools/entity-search${case_id ? `?case_id=${case_id}` : ""}`);
+}
+
+export function getEntitySearch(id) {
+  return request(`/tools/entity-search/${id}`);
+}

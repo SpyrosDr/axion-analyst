@@ -1,0 +1,16 @@
+from pydantic import BaseModel, ConfigDict
+
+
+class SearchSource(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    title: str
+    url: str
+    snippet: str = ""
+
+
+class EntitySearchResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    summary: str
+    sources: list[SearchSource]

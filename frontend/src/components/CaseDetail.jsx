@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { updateCaseStatus } from "../api";
 import EvidenceSection from "./EvidenceSection";
+import EntitySearchTool from "./EntitySearchTool";
 import ResultsSections from "./ResultsSections";
 import Collaborators from "./Collaborators";
 import ActivityLog from "./ActivityLog";
@@ -93,6 +94,10 @@ function CaseDetail({
           onAdded={onEvidenceAdded}
           canEdit={canEdit && !isClosed}
         />
+
+        {canEdit && (
+          <EntitySearchTool caseId={caseData.id} embedded />
+        )}
 
         {isClosed && (
           <p className="empty-state closed-notice">
