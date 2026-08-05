@@ -1,14 +1,18 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 SpyrosDr
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.auth import rate_limit
-from app.auth.dependencies import get_current_user, require_admin
-from app.auth.security import create_access_token
+from app.auth.dependencies import get_current_token_payload, get_current_user, require_admin
+from app.auth.security import ACCESS_TOKEN_COOKIE_NAME, create_access_token
+from app.config import settings
 from app.database.db import get_db
+from app.models.revoked_token import RevokedToken
 from app.models.user import User
 from app.schemas.user_schema import (
     PasswordChange,
@@ -24,9 +28,25 @@ from app.services import user_service
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
+def _set_session_cookie(response: Response, token: str) -> None:
+    response.set_cookie(
+        key=ACCESS_TOKEN_COOKIE_NAME,
+        value=token,
+        httponly=True,
+        # Only forces HTTPS in production -- local dev over plain HTTP
+        # (Vite on localhost) would otherwise have the cookie silently
+        # dropped by the browser.
+        secure=settings.ENVIRONMENT == "production",
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
+        path="/",
+    )
+
+
 @router.post("/login", response_model=Token)
 def login(
     request: Request,
+    response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
@@ -52,7 +72,40 @@ def login(
     # The token identifies the user by their permanent id, not username, so
     # a later username change doesn't invalidate outstanding tokens.
     token = create_access_token(subject=str(user.id))
+    # The browser frontend authenticates via this httpOnly cookie (never
+    # touches the token directly, so it's not exposed to XSS via
+    # localStorage/JS). The token is also still returned in the response
+    # body for API clients/tools that use the Authorization header instead.
+    _set_session_cookie(response, token)
     return Token(access_token=token)
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(
+    response: Response,
+    payload: dict = Depends(get_current_token_payload),
+    db: Session = Depends(get_db),
+):
+    """Revokes the current access token server-side (denylisted by jti) and
+    clears the session cookie. Without this, logging out only ever
+    discarded the token client-side -- a copy captured before logout (XSS,
+    a proxy log, a stolen device) stayed valid until it naturally expired."""
+    now = datetime.now(timezone.utc)
+
+    # Opportunistic cleanup: entries here can no longer pass JWT validation
+    # once their own exp has passed anyway, so there's no reason to keep
+    # them -- this keeps the table from growing unboundedly.
+    db.query(RevokedToken).filter(RevokedToken.expires_at < now).delete()
+
+    jti = payload.get("jti")
+    exp = payload.get("exp")
+    if jti and not db.query(RevokedToken.jti).filter(RevokedToken.jti == jti).first():
+        expires_at = datetime.fromtimestamp(exp, tz=timezone.utc) if exp else now
+        db.add(RevokedToken(jti=jti, expires_at=expires_at))
+    db.commit()
+
+    response.delete_cookie(ACCESS_TOKEN_COOKIE_NAME, path="/")
+    return None
 
 
 @router.get("/me", response_model=UserResponse)

@@ -78,6 +78,87 @@ def test_login_wrong_password_rejected(admin_headers):
     assert response.status_code == 401
 
 
+def test_login_sets_httponly_session_cookie():
+    init_db()
+    db = SessionLocal()
+    try:
+        if not user_service.get_user_by_username(db, "cookie-test"):
+            user_service.create_user(
+                db, UserCreate(username="cookie-test", password="cookiepass123")
+            )
+    finally:
+        db.close()
+
+    response = client.post(
+        "/auth/login", data={"username": "cookie-test", "password": "cookiepass123"}
+    )
+    assert response.status_code == 200
+    cookie = response.cookies.get("access_token")
+    assert cookie is not None
+    set_cookie_header = response.headers.get("set-cookie", "")
+    assert "HttpOnly" in set_cookie_header
+
+
+def test_cookie_alone_authenticates_without_authorization_header():
+    init_db()
+    db = SessionLocal()
+    try:
+        if not user_service.get_user_by_username(db, "cookie-only-test"):
+            user_service.create_user(
+                db, UserCreate(username="cookie-only-test", password="cookiepass123")
+            )
+    finally:
+        db.close()
+
+    with TestClient(app) as session_client:
+        login_response = session_client.post(
+            "/auth/login",
+            data={"username": "cookie-only-test", "password": "cookiepass123"},
+        )
+        assert login_response.status_code == 200
+        # No Authorization header -- only the cookie the client jar now
+        # holds from the login response.
+        me_response = session_client.get("/auth/me")
+        assert me_response.status_code == 200
+        assert me_response.json()["username"] == "cookie-only-test"
+
+
+def test_logout_revokes_token_immediately(alice_headers):
+    assert client.get("/auth/me", headers=alice_headers).status_code == 200
+
+    logout_response = client.post("/auth/logout", headers=alice_headers)
+    assert logout_response.status_code == 204
+
+    # The same bearer token must now be rejected even though it hasn't
+    # naturally expired -- this is the point of server-side revocation.
+    assert client.get("/auth/me", headers=alice_headers).status_code == 401
+
+
+def test_logout_clears_session_cookie():
+    init_db()
+    db = SessionLocal()
+    try:
+        if not user_service.get_user_by_username(db, "logout-cookie-test"):
+            user_service.create_user(
+                db,
+                UserCreate(username="logout-cookie-test", password="cookiepass123"),
+            )
+    finally:
+        db.close()
+
+    with TestClient(app) as session_client:
+        session_client.post(
+            "/auth/login",
+            data={"username": "logout-cookie-test", "password": "cookiepass123"},
+        )
+        assert session_client.get("/auth/me").status_code == 200
+
+        logout_response = session_client.post("/auth/logout")
+        assert logout_response.status_code == 204
+
+        assert session_client.get("/auth/me").status_code == 401
+
+
 def test_non_admin_cannot_create_users(alice_headers):
     response = client.post(
         "/auth/users",

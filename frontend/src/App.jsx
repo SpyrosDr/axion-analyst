@@ -13,35 +13,31 @@ import Avatar from "./components/Avatar";
 import Dashboard from "./components/Dashboard";
 import CasesTab from "./components/CasesTab";
 import ToolsTab from "./components/ToolsTab";
-import { getMe, loadStoredToken, setAuthToken, setUnauthorizedHandler } from "./api";
+import { getMe, logout, setUnauthorizedHandler } from "./api";
 
 function App() {
   const [tab, setTab] = useState("dashboard");
   const [initialCaseId, setInitialCaseId] = useState(null);
   const [initialStatusFilter, setInitialStatusFilter] = useState(null);
-  // undefined = checking stored session, null = logged out, object = logged in
+  // undefined = checking session, null = logged out, object = logged in
   const [user, setUser] = useState(undefined);
 
   useEffect(() => {
     setUnauthorizedHandler(() => setUser(null));
 
-    const token = loadStoredToken();
-    if (!token) {
-      setUser(null);
-      return;
-    }
+    // Session lives in an httpOnly cookie the browser sends automatically
+    // -- just ask the backend who (if anyone) it belongs to.
     getMe()
       .then(setUser)
       .catch(() => setUser(null));
   }, []);
 
-  function handleLoggedIn(token) {
-    setAuthToken(token);
+  function handleLoggedIn() {
     getMe().then(setUser);
   }
 
   function handleLogout() {
-    setAuthToken(null);
+    logout();
     setUser(null);
     setTab("dashboard");
   }

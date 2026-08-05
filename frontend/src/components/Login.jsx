@@ -18,8 +18,8 @@ function Login({ onLoggedIn }) {
     setLoading(true);
     setError(null);
     try {
-      const { access_token } = await login(username, password);
-      onLoggedIn(access_token);
+      await login(username, password);
+      onLoggedIn();
     } catch (err) {
       setError(err.message);
     } finally {
