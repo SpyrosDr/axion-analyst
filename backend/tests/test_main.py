@@ -39,6 +39,12 @@ def test_read_root():
     assert response.json()["message"] == "Fraud Investigation Workbench API is running"
 
 
+def test_health_reports_ok_when_db_is_reachable():
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 def test_assess_case(auth_headers):
     response = client.post(
         "/ai/assess-case",

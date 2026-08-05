@@ -19,5 +19,17 @@ def log(
     return entry
 
 
-def list_activity(case: Case) -> list[CaseActivity]:
-    return sorted(case.activities, key=lambda entry: entry.id, reverse=True)
+def list_activity(
+    db: Session, case: Case, *, limit: int = 50, offset: int = 0
+) -> list[CaseActivity]:
+    # Queries CaseActivity directly (rather than reading case.activities)
+    # so pagination happens in SQL instead of loading every activity row
+    # for the case into memory first.
+    return (
+        db.query(CaseActivity)
+        .filter(CaseActivity.case_id == case.id)
+        .order_by(CaseActivity.id.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )

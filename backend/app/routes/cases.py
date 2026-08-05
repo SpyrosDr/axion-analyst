@@ -13,6 +13,7 @@ from app.auth.dependencies import (
 from app.database.db import get_db
 from app.models.case import Case
 from app.models.user import User
+from app.pagination import Pagination, pagination_params
 from app.schemas.case_schema import (
     CaseActivityResponse,
     CaseCollaboratorAdd,
@@ -57,9 +58,12 @@ def create_case(
 
 @router.get("", response_model=list[CaseResponse])
 def list_cases(
-    db: Session = Depends(get_db), user: User = Depends(get_current_user)
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+    page: Pagination = Depends(pagination_params),
 ):
-    return [_with_my_role(case, user) for case in case_service.list_cases(db, user)]
+    cases = case_service.list_cases(db, user, limit=page.limit, offset=page.offset)
+    return [_with_my_role(case, user) for case in cases]
 
 
 @router.get("/{case_id}", response_model=CaseDetailResponse)
@@ -125,8 +129,12 @@ def update_status(
 
 
 @router.get("/{case_id}/activity", response_model=list[CaseActivityResponse])
-def list_activity(case: Case = Depends(viewable_case)):
-    return activity_service.list_activity(case)
+def list_activity(
+    case: Case = Depends(viewable_case),
+    db: Session = Depends(get_db),
+    page: Pagination = Depends(pagination_params),
+):
+    return activity_service.list_activity(db, case, limit=page.limit, offset=page.offset)
 
 
 @router.get("/{case_id}/collaborators", response_model=list[CaseCollaboratorResponse])

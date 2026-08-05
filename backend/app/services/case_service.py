@@ -70,11 +70,13 @@ def get_case_by_id_or_404(db: Session, case_id: int) -> Case:
     return case
 
 
-def list_cases(db: Session, user: User) -> list[Case]:
+def list_cases(
+    db: Session, user: User, *, limit: int | None = None, offset: int = 0
+) -> list[Case]:
     # Eager-load everything the list response touches per case (owner,
     # my_role via collaborator_links, latest_risk_level via risk_assessments)
     # so serialization doesn't issue three lazy queries per row.
-    return (
+    query = (
         _accessible_query(db, user)
         .options(
             selectinload(Case.owner),
@@ -82,8 +84,11 @@ def list_cases(db: Session, user: User) -> list[Case]:
             selectinload(Case.risk_assessments),
         )
         .order_by(Case.id)
-        .all()
+        .offset(offset)
     )
+    if limit is not None:
+        query = query.limit(limit)
+    return query.all()
 
 
 def require_edit(case: Case, user: User) -> None:

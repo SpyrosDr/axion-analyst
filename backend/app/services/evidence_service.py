@@ -31,10 +31,20 @@ def add_evidence_items(db: Session, case_id: int, items: list[str]) -> list[Evid
     return evidence_items
 
 
-def list_evidence(db: Session, case_id: int) -> list[Evidence]:
-    return (
+def list_evidence(
+    db: Session, case_id: int, *, limit: int | None = None, offset: int = 0
+) -> list[Evidence]:
+    # limit=None (the default) returns everything -- required by the
+    # internal callers (entity extraction, timeline, risk assessment,
+    # report generation) that need the case's complete evidence to
+    # analyze, not a page of it. Only the GET /evidence route paginates,
+    # by passing an explicit limit.
+    query = (
         db.query(Evidence)
         .filter(Evidence.case_id == case_id)
         .order_by(Evidence.id)
-        .all()
+        .offset(offset)
     )
+    if limit is not None:
+        query = query.limit(limit)
+    return query.all()

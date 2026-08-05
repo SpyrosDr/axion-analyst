@@ -43,23 +43,20 @@ def run_search(db: Session, data: EntitySearchCreate, user: User) -> EntitySearc
 
 
 def list_searches(
-    db: Session, user: User, case_id: int | None
+    db: Session,
+    user: User,
+    case_id: int | None,
+    *,
+    limit: int = 50,
+    offset: int = 0,
 ) -> list[EntitySearch]:
     if case_id is not None:
         _require_case_access(db, case_id, user, edit=False)
-        return (
-            db.query(EntitySearch)
-            .filter(EntitySearch.case_id == case_id)
-            .order_by(EntitySearch.id.desc())
-            .all()
-        )
+        query = db.query(EntitySearch).filter(EntitySearch.case_id == case_id)
+    else:
+        query = db.query(EntitySearch).filter(EntitySearch.created_by_id == user.id)
 
-    return (
-        db.query(EntitySearch)
-        .filter(EntitySearch.created_by_id == user.id)
-        .order_by(EntitySearch.id.desc())
-        .all()
-    )
+    return query.order_by(EntitySearch.id.desc()).offset(offset).limit(limit).all()
 
 
 def get_search(db: Session, search_id: int, user: User) -> EntitySearch:
