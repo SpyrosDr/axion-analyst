@@ -41,7 +41,18 @@ uvicorn app.main:app --reload
 
 The API runs at `http://127.0.0.1:8000` — interactive docs at `/docs`. The SQLite database file (`aletheia.db`) is created automatically on first run.
 
-There are no schema migrations: if you pull a change that alters the database models, delete `backend/aletheia.db` and re-run the `create_admin` bootstrap (a stale database will fail with "no such column" errors).
+### Database migrations
+
+Schema changes are managed with [Alembic](https://alembic.sqlalchemy.org/) (`backend/alembic/`). `init_db()` runs automatically on every app startup (and before `create_admin`/`sample_data`) and migrates the database to the latest schema — including a database created by an older version of this app before Alembic existed, which gets detected and stamped rather than replayed. There's no need to delete `aletheia.db` when you pull a change that alters the models.
+
+If you change a SQLAlchemy model, generate the migration for it:
+
+```bash
+cd backend
+alembic revision --autogenerate -m "describe the change"
+```
+
+Review the generated file in `backend/alembic/versions/` before committing — autogenerate is a good first draft, not a guarantee (it can miss renames, check constraints, and some SQLite-specific changes).
 
 ### Frontend
 
@@ -60,14 +71,18 @@ Copy `backend/.env.example` to `backend/.env` and adjust as needed. Key variable
 * `AI_PROVIDER` — `mock` (default, no key needed) | `anthropic` | `openai`.
 * `ANTHROPIC_API_KEY` — required for `anthropic`; model defaults to `claude-haiku-4-5`.
 * `OPENAI_API_KEY` and `OPENAI_MODEL` — both required for `openai` (pick a current model that supports Structured Outputs).
-* `SECRET_KEY` — signs login tokens. The dev default is insecure; **always override it outside local development**.
+* `SECRET_KEY` — signs login tokens. The dev default is insecure; **always override it outside local development**. If `ENVIRONMENT=production` and `SECRET_KEY` is still the default, the app refuses to start rather than boot insecurely.
+* `ENVIRONMENT` — `development` (default) | `production`. Only gates the `SECRET_KEY` check above.
 * `ACCESS_TOKEN_EXPIRE_HOURS` — login token lifetime (default 24).
+* `LOGIN_RATE_LIMIT_*` — login brute-force throttling (see below).
+* `CORS_ALLOWED_ORIGINS` — comma-separated origins allowed to call the API cross-origin. Defaults to the Vite dev server; set to your real frontend origin(s) in production.
 
 ## Users, access, and sharing
 
 * Accounts are created by admins only (no public signup). The first admin is bootstrapped via `python -m app.create_admin`.
 * A case is visible only to its owner and to collaborators the owner has added. Collaborators can view and edit (add evidence, run analysis) but cannot manage collaborators or delete the case.
 * Requests for cases you cannot access return 404, deliberately not revealing whether the case exists.
+* Failed logins are throttled in-process: an account locks out after `LOGIN_RATE_LIMIT_ATTEMPTS` failures (default 5) within `LOGIN_RATE_LIMIT_WINDOW_SECONDS` (default 300s), and a client IP locks out after a larger `LOGIN_RATE_LIMIT_IP_ATTEMPTS` (default 20) — catching a spray across many usernames without punishing a whole shared IP for one mistyped password. A locked-out attempt gets `429` with a `Retry-After` header. This state lives in the process's memory (no Redis), so it resets on restart and isn't shared across multiple worker processes.
 
 **Known limitation**: logging out clears the token from the browser but does not invalidate it server-side — an issued token remains valid until it expires (24h by default). There is no token revocation list in this version. Rotating `SECRET_KEY` invalidates all outstanding tokens at once if ever needed.
 
