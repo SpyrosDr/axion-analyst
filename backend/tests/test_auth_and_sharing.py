@@ -4,6 +4,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from app.config import settings
 from app.database.db import SessionLocal, init_db
 from app.main import app
 from app.schemas.user_schema import UserCreate
@@ -266,6 +267,42 @@ def test_avatar_color_rejects_arbitrary_value(alice_headers):
         headers=alice_headers,
     )
     assert response.status_code == 400
+
+
+def test_login_locks_out_account_after_repeated_failures(admin_headers):
+    # Dedicated username so this test's lockout can't bleed into other
+    # tests that reuse "admin-test"/"alice-test"/"bob-test".
+    username = "ratelimit-test"
+    password = "ratelimitpass1"
+    db = SessionLocal()
+    try:
+        if not user_service.get_user_by_username(db, username):
+            user_service.create_user(
+                db, UserCreate(username=username, password=password)
+            )
+    finally:
+        db.close()
+
+    for _ in range(settings.LOGIN_RATE_LIMIT_ATTEMPTS):
+        response = client.post(
+            "/auth/login", data={"username": username, "password": "wrong"}
+        )
+        assert response.status_code == 401
+
+    # The account is now locked out -- even the *correct* password is
+    # rejected until the lockout window passes.
+    response = client.post(
+        "/auth/login", data={"username": username, "password": password}
+    )
+    assert response.status_code == 429
+    assert "Retry-After" in response.headers
+
+    # A different, unrelated account from the same test client is not
+    # affected by another account's lockout.
+    response = client.post(
+        "/auth/login", data={"username": "admin-test", "password": "adminpass123"}
+    )
+    assert response.status_code == 200
 
 
 def test_avatar_color_accepts_allowed_palette_value(alice_headers):
