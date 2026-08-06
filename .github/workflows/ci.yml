@@ -39,6 +39,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Run tests
+        working-directory: frontend
+        run: npm test
+
       - name: Lint
         working-directory: frontend
         # Pre-existing lint debt (react-hooks/set-state-in-effect errors in
