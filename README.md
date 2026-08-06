@@ -6,7 +6,7 @@ It is not a fraud detection engine, AML transaction monitoring system, or alert-
 
 ## Features
 
-* **Case management** — create cases with context, description, and evidence items; add evidence as an investigation develops.
+* **Case management** — create cases with context, description, and evidence items; add evidence as an investigation develops. Evidence items support file attachments (screenshots, PDFs, statements) alongside text.
 * **AI-assisted analysis** — one click runs entity extraction, timeline construction, risk assessment, and draft report generation. All four outputs come from a single AI analysis, so they are internally consistent.
 * **Multi-user with per-case sharing** — admin-created accounts, JWT login, cases are private to their owner by default, and owners can add colleagues as collaborators with full view/edit access.
 * **Quick Assess** — a stateless one-shot assessment form for a fast first read on a case, with nothing persisted.
@@ -71,11 +71,16 @@ Copy `backend/.env.example` to `backend/.env` and adjust as needed. Key variable
 * `AI_PROVIDER` — `mock` (default, no key needed) | `anthropic` | `openai`.
 * `ANTHROPIC_API_KEY` — required for `anthropic`; model defaults to `claude-haiku-4-5`.
 * `OPENAI_API_KEY` and `OPENAI_MODEL` — both required for `openai` (pick a current model that supports Structured Outputs).
+* `SEARCH_PROVIDER` — backend for the entity web-search tool: `mock` (default, no key needed) | `anthropic` | `openai` | `tavily`. `anthropic`/`openai` reuse the API keys/models above via each provider's hosted web-search tool; `tavily` needs `TAVILY_API_KEY`.
+* `SEARCH_CACHE_TTL_SECONDS` — how long an identical entity search (same query + entity type + provider) is served from a previous result instead of re-hitting the search provider (default 3600s / 1 hour). Set to `0` to disable caching.
 * `SECRET_KEY` — signs login tokens. The dev default is insecure; **always override it outside local development**. If `ENVIRONMENT=production` and `SECRET_KEY` is still the default, the app refuses to start rather than boot insecurely.
 * `ENVIRONMENT` — `development` (default) | `production`. Only gates the `SECRET_KEY` check above.
 * `ACCESS_TOKEN_EXPIRE_HOURS` — login token lifetime (default 24).
 * `LOGIN_RATE_LIMIT_*` — login brute-force throttling (see below).
 * `CORS_ALLOWED_ORIGINS` — comma-separated origins allowed to call the API cross-origin. Defaults to the Vite dev server; set to your real frontend origin(s) in production.
+* `EVIDENCE_UPLOAD_DIR` — where evidence attachment files are stored on disk (default `backend/data/evidence_attachments`). Point this at a separate volume/mount in production.
+* `EVIDENCE_MAX_ATTACHMENT_SIZE_BYTES` — per-file upload size limit (default 20MB).
+* `EVIDENCE_ALLOWED_ATTACHMENT_EXTENSIONS` — comma-separated, no dots (default `png,jpg,jpeg,gif,webp,pdf,txt,csv,eml,docx,xlsx`). Deliberately excludes anything a browser might execute or render inline (`html`, `svg`, `js`, ...) — an attachment is meant to be evidence, not interpreted content.
 
 ## Users, access, and sharing
 
@@ -94,6 +99,14 @@ pytest
 
 Run from the repository root. Tests use an isolated temporary database and never touch your development data.
 
+```bash
+cd frontend
+npm test          # run once
+npm run test:watch  # re-run on change
+```
+
+Component tests use [Vitest](https://vitest.dev/) + Testing Library, with `../api` mocked so no backend is needed. Coverage today is limited to permission-sensitive UI — `ManageUsers` and `Collaborators` — where a rendering bug (e.g. a role control appearing for a user who shouldn't get one) is an access-control bug, not just a cosmetic one.
+
 ## Security and data handling
 
 This repository should contain only source code and fake sample evidence. It should never contain:
@@ -111,7 +124,7 @@ Local secrets belong in `backend/.env`, which must not be committed. Public conf
 
 ## License
 
-Copyright (C) 2026 SpyrosDr
+Copyright (C) 2026 Spyridon Drakopoulos
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU Affero General Public License as published by the Free

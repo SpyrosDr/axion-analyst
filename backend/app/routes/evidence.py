@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -8,6 +8,7 @@ from app.auth.dependencies import editable_case, get_current_user, viewable_case
 from app.database.db import get_db
 from app.models.case import Case
 from app.models.user import User
+from app.pagination import Pagination, pagination_params
 from app.schemas.evidence_schema import EvidenceCreate, EvidenceResponse
 from app.services import activity_service, case_service, evidence_service
 
@@ -34,6 +35,10 @@ def add_evidence(
 
 @router.get("", response_model=list[EvidenceResponse])
 def list_evidence(
-    case: Case = Depends(viewable_case), db: Session = Depends(get_db)
+    case: Case = Depends(viewable_case),
+    db: Session = Depends(get_db),
+    page: Pagination = Depends(pagination_params),
 ):
-    return evidence_service.list_evidence(db, case.id)
+    return evidence_service.list_evidence(
+        db, case.id, limit=page.limit, offset=page.offset
+    )

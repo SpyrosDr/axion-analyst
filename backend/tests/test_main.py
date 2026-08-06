@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 import pytest
 from fastapi.testclient import TestClient
@@ -37,6 +37,12 @@ def test_read_root():
     response = client.get("/")
     assert response.status_code == 200
     assert response.json()["message"] == "Fraud Investigation Workbench API is running"
+
+
+def test_health_reports_ok_when_db_is_reachable():
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
 
 
 def test_assess_case(auth_headers):

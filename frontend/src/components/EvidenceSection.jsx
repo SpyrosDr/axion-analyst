@@ -1,12 +1,16 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
- * Copyright (C) 2026 SpyrosDr
+ * Copyright (C) 2026 Spyridon Drakopoulos
  */
 
 import { useState } from "react";
 import { addEvidence } from "../api";
+import EvidenceAttachments from "./EvidenceAttachments";
 
 function EvidenceSection({ caseId, evidenceItems, onAdded, canEdit }) {
+  // Content-hidden note: canEdit already reflects both edit access AND the
+  // case being open (see CaseDetail), so attachments inherit the same gate
+  // as adding evidence text -- no separate "is the case open" check here.
   const [title, setTitle] = useState("");
   const [type, setType] = useState("");
   const [content, setContent] = useState("");
@@ -45,6 +49,11 @@ function EvidenceSection({ caseId, evidenceItems, onAdded, canEdit }) {
               {item.title && <strong>{item.title}: </strong>}
               {item.content}
               {item.type && <em> ({item.type})</em>}
+              <EvidenceAttachments
+                caseId={caseId}
+                evidenceId={item.id}
+                canEdit={canEdit}
+              />
             </li>
           ))}
         </ul>

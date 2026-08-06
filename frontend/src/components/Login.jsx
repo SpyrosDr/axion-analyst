@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
- * Copyright (C) 2026 SpyrosDr
+ * Copyright (C) 2026 Spyridon Drakopoulos
  */
 
 import { useState } from "react";
@@ -18,8 +18,8 @@ function Login({ onLoggedIn }) {
     setLoading(true);
     setError(null);
     try {
-      const { access_token } = await login(username, password);
-      onLoggedIn(access_token);
+      await login(username, password);
+      onLoggedIn();
     } catch (err) {
       setError(err.message);
     } finally {

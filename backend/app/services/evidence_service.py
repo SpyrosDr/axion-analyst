@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.evidence import Evidence
@@ -31,10 +32,37 @@ def add_evidence_items(db: Session, case_id: int, items: list[str]) -> list[Evid
     return evidence_items
 
 
-def list_evidence(db: Session, case_id: int) -> list[Evidence]:
-    return (
+def list_evidence(
+    db: Session, case_id: int, *, limit: int | None = None, offset: int = 0
+) -> list[Evidence]:
+    # limit=None (the default) returns everything -- required by the
+    # internal callers (entity extraction, timeline, risk assessment,
+    # report generation) that need the case's complete evidence to
+    # analyze, not a page of it. Only the GET /evidence route paginates,
+    # by passing an explicit limit.
+    query = (
         db.query(Evidence)
         .filter(Evidence.case_id == case_id)
         .order_by(Evidence.id)
-        .all()
+        .offset(offset)
     )
+    if limit is not None:
+        query = query.limit(limit)
+    return query.all()
+
+
+def get_evidence_or_404(db: Session, case_id: int, evidence_id: int) -> Evidence:
+    # Scoped to case_id (not just Evidence.id) so an evidence_id that
+    # belongs to some *other* case 404s here rather than resolving --
+    # the caller already proved access to `case_id`, not to whatever case
+    # actually owns that row.
+    evidence = (
+        db.query(Evidence)
+        .filter(Evidence.id == evidence_id, Evidence.case_id == case_id)
+        .first()
+    )
+    if evidence is None:
+        raise HTTPException(
+            status_code=404, detail=f"Evidence {evidence_id} not found"
+        )
+    return evidence

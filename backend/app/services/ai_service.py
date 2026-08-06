@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 from app.ai import client as ai_client
 from app.ai.providers.mock_provider import assess_case as mock_assess_case

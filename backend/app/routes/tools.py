@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import get_current_user
 from app.database.db import get_db
 from app.models.user import User
+from app.pagination import Pagination, pagination_params
 from app.schemas.entity_search_schema import EntitySearchCreate, EntitySearchResponse
 from app.services import entity_search_service
 
@@ -27,8 +28,11 @@ def list_entity_searches(
     case_id: int | None = None,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
+    page: Pagination = Depends(pagination_params),
 ):
-    return entity_search_service.list_searches(db, user, case_id)
+    return entity_search_service.list_searches(
+        db, user, case_id, limit=page.limit, offset=page.offset
+    )
 
 
 @router.get("/entity-search/{search_id}", response_model=EntitySearchResponse)

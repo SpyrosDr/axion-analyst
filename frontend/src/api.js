@@ -1,27 +1,15 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
- * Copyright (C) 2026 SpyrosDr
+ * Copyright (C) 2026 Spyridon Drakopoulos
  */
 
+// Auth is an httpOnly session cookie the backend sets on /auth/login --
+// the frontend never sees the token itself, so there's nothing here for
+// an XSS payload to read out of localStorage/JS state. Every request just
+// needs `credentials: "include"` so the browser attaches the cookie.
 const BASE = "/api";
-const TOKEN_KEY = "aletheia_token";
 
-let authToken = null;
 let onUnauthorized = null;
-
-export function setAuthToken(token) {
-  authToken = token;
-  if (token) {
-    localStorage.setItem(TOKEN_KEY, token);
-  } else {
-    localStorage.removeItem(TOKEN_KEY);
-  }
-}
-
-export function loadStoredToken() {
-  authToken = localStorage.getItem(TOKEN_KEY);
-  return authToken;
-}
 
 export function setUnauthorizedHandler(handler) {
   onUnauthorized = handler;
@@ -42,15 +30,21 @@ async function errorDetail(res) {
 }
 
 async function request(path, options = {}) {
-  const headers = { "Content-Type": "application/json", ...options.headers };
-  if (authToken) {
-    headers.Authorization = `Bearer ${authToken}`;
-  }
+  // FormData (file uploads) must NOT get an explicit Content-Type -- the
+  // browser sets one itself, including the multipart boundary, and an
+  // explicit "application/json" here would break the upload silently.
+  const isFormData = options.body instanceof FormData;
+  const headers = isFormData
+    ? { ...options.headers }
+    : { "Content-Type": "application/json", ...options.headers };
 
-  const res = await fetch(`${BASE}${path}`, { ...options, headers });
+  const res = await fetch(`${BASE}${path}`, {
+    ...options,
+    headers,
+    credentials: "include",
+  });
 
   if (res.status === 401) {
-    setAuthToken(null);
     if (onUnauthorized) onUnauthorized();
     throw new Error("Session expired. Please log in again.");
   }
@@ -66,12 +60,23 @@ async function request(path, options = {}) {
 
 export async function login(username, password) {
   const body = new URLSearchParams({ username, password });
-  const res = await fetch(`${BASE}/auth/login`, { method: "POST", body });
+  const res = await fetch(`${BASE}/auth/login`, {
+    method: "POST",
+    body,
+    credentials: "include",
+  });
   if (!res.ok) {
     const detail = await errorDetail(res);
     throw new Error(detail || "Login failed");
   }
   return res.json();
+}
+
+export function logout() {
+  // Revokes the session server-side (not just a client-side forget) --
+  // see POST /auth/logout. Best-effort: the caller clears local UI state
+  // regardless of whether this succeeds.
+  return request("/auth/logout", { method: "POST" }).catch(() => {});
 }
 
 export function getMe() {
@@ -176,6 +181,32 @@ export function addEvidence(caseId, { title, type, content }) {
     method: "POST",
     body: JSON.stringify({ title, type, content }),
   });
+}
+
+export function listAttachments(caseId, evidenceId) {
+  return request(`/cases/${caseId}/evidence/${evidenceId}/attachments`);
+}
+
+export function uploadAttachment(caseId, evidenceId, file) {
+  const body = new FormData();
+  body.append("file", file);
+  return request(`/cases/${caseId}/evidence/${evidenceId}/attachments`, {
+    method: "POST",
+    body,
+  });
+}
+
+export function deleteAttachment(caseId, evidenceId, attachmentId) {
+  return request(
+    `/cases/${caseId}/evidence/${evidenceId}/attachments/${attachmentId}`,
+    { method: "DELETE" }
+  );
+}
+
+export function attachmentDownloadUrl(caseId, evidenceId, attachmentId) {
+  // Plain URL, not a `request()` call -- this is used as an <a href> so the
+  // browser navigates/downloads directly, sending the session cookie itself.
+  return `${BASE}/cases/${caseId}/evidence/${evidenceId}/attachments/${attachmentId}/download`;
 }
 
 export function runAnalysis(caseId) {

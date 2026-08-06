@@ -1,16 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
 
 from app.ai.client import AIProviderError
 from app.config import check_boot_safety, settings
-from app.database.db import init_db
-from app.routes import ai, auth, cases, evidence, reports, tools
+from app.database.db import engine, init_db
+from app.routes import ai, auth, cases, evidence, evidence_attachments, reports, tools
 from app.search.client import SearchProviderError
 
 # Fails fast, before the app object (and any server socket) is even
@@ -65,6 +66,7 @@ app.include_router(auth.router)
 app.include_router(ai.router)
 app.include_router(cases.router)
 app.include_router(evidence.router)
+app.include_router(evidence_attachments.router)
 app.include_router(reports.router)
 app.include_router(tools.router)
 
@@ -74,3 +76,19 @@ def read_root():
     return {
         "message": "Fraud Investigation Workbench API is running"
     }
+
+
+@app.get("/health")
+def health():
+    """Liveness/readiness check for deploy and monitoring tooling: confirms
+    the process is up *and* can actually reach its database, unlike `/`
+    which is a static string regardless of DB state."""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception as exc:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "unhealthy", "detail": f"database unreachable: {exc}"},
+        )
+    return {"status": "ok"}
