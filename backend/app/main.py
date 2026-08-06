@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 from contextlib import asynccontextmanager
 
@@ -11,7 +11,7 @@ from sqlalchemy import text
 from app.ai.client import AIProviderError
 from app.config import check_boot_safety, settings
 from app.database.db import engine, init_db
-from app.routes import ai, auth, cases, evidence, reports, tools
+from app.routes import ai, auth, cases, evidence, evidence_attachments, reports, tools
 from app.search.client import SearchProviderError
 
 # Fails fast, before the app object (and any server socket) is even
@@ -66,6 +66,7 @@ app.include_router(auth.router)
 app.include_router(ai.router)
 app.include_router(cases.router)
 app.include_router(evidence.router)
+app.include_router(evidence_attachments.router)
 app.include_router(reports.router)
 app.include_router(tools.router)
 

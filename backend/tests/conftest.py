@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 import os
 import tempfile
@@ -19,6 +19,13 @@ os.environ["AI_PROVIDER"] = "mock"
 # provider.
 os.environ["SEARCH_PROVIDER"] = "mock"
 
+# Evidence attachment uploads must land in a throwaway directory, not the
+# real backend/data/evidence_attachments used by local dev.
+_TEST_UPLOAD_DIR = os.path.join(tempfile.gettempdir(), "aletheia_test_attachments")
+os.environ["EVIDENCE_UPLOAD_DIR"] = _TEST_UPLOAD_DIR
+
+import shutil  # noqa: E402
+
 import pytest  # noqa: E402
 
 
@@ -26,6 +33,10 @@ import pytest  # noqa: E402
 def _fresh_test_db():
     if os.path.exists(_TEST_DB):
         os.remove(_TEST_DB)
+    if os.path.exists(_TEST_UPLOAD_DIR):
+        shutil.rmtree(_TEST_UPLOAD_DIR)
     yield
     if os.path.exists(_TEST_DB):
         os.remove(_TEST_DB)
+    if os.path.exists(_TEST_UPLOAD_DIR):
+        shutil.rmtree(_TEST_UPLOAD_DIR)

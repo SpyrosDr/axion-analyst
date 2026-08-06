@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
+
+from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -19,20 +22,56 @@ def _require_case_access(db: Session, case_id: int, user: User, *, edit: bool):
     return case
 
 
+def _find_cached_result(
+    db: Session, query: str, entity_type: str | None
+) -> EntitySearch | None:
+    """Look up a recent EntitySearch for the same (query, entity_type,
+    provider) to avoid re-hitting the search provider. The result content is
+    about a public entity, not confidential case data (see the comment in
+    app.search.client), so it's safe to reuse across cases and users --
+    only the provider call is skipped, a fresh row is still written for
+    whoever asked this time."""
+    ttl = settings.SEARCH_CACHE_TTL_SECONDS
+    if ttl <= 0:
+        return None
+
+    # Naive UTC to match created_at, which is set by the DB's func.now()
+    # (CURRENT_TIMESTAMP) -- naive on SQLite. A tz-aware value here would
+    # compare incorrectly against that stored, offset-less string.
+    cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=ttl)
+    return (
+        db.query(EntitySearch)
+        .filter(
+            func.lower(func.trim(EntitySearch.query)) == query.strip().lower(),
+            EntitySearch.entity_type == entity_type,
+            EntitySearch.provider == settings.SEARCH_PROVIDER,
+            EntitySearch.created_at >= cutoff,
+        )
+        .order_by(EntitySearch.id.desc())
+        .first()
+    )
+
+
 def run_search(db: Session, data: EntitySearchCreate, user: User) -> EntitySearch:
     if data.case_id is not None:
         # Persisting a search against a case is a write to that case's
         # record, same access bar as adding evidence.
         _require_case_access(db, data.case_id, user, edit=True)
 
-    result = search_client.search_entity(data.query, data.entity_type)
+    cached = _find_cached_result(db, data.query, data.entity_type)
+    if cached is not None:
+        summary, sources = cached.summary, cached.sources
+    else:
+        result = search_client.search_entity(data.query, data.entity_type)
+        summary = result.summary
+        sources = [source.model_dump() for source in result.sources]
 
     search = EntitySearch(
         query=data.query,
         entity_type=data.entity_type,
         provider=settings.SEARCH_PROVIDER,
-        summary=result.summary,
-        sources=[source.model_dump() for source in result.sources],
+        summary=summary,
+        sources=sources,
         case_id=data.case_id,
         created_by_id=user.id,
     )

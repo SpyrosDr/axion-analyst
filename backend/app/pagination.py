@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 """Shared pagination for list endpoints (cases, evidence, activity, entity
 searches) that would otherwise return every matching row unbounded. `limit`

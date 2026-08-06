@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 import pytest
 from fastapi.testclient import TestClient
@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from app.database.db import SessionLocal, init_db
 from app.main import app
 from app.schemas.user_schema import UserCreate
-from app.services import user_service
+from app.services import entity_search_service, user_service
 
 client = TestClient(app)
 
@@ -153,3 +153,73 @@ def test_get_single_search_respects_access(es_owner, es_stranger):
         ).status_code
         == 404
     )
+
+
+def test_identical_query_reuses_cached_result_without_calling_provider(
+    es_owner, es_stranger, monkeypatch
+):
+    calls = []
+    real_search_entity = entity_search_service.search_client.search_entity
+
+    def counting_search_entity(query, entity_type):
+        calls.append((query, entity_type))
+        return real_search_entity(query, entity_type)
+
+    monkeypatch.setattr(
+        entity_search_service.search_client, "search_entity", counting_search_entity
+    )
+
+    first = client.post(
+        "/tools/entity-search",
+        json={"query": "Cached Corp", "entity_type": "company"},
+        headers=es_owner,
+    )
+    assert first.status_code == 200
+    assert len(calls) == 1
+
+    # Same query/entity_type, different whitespace/case, different user --
+    # still a cache hit: the provider is not called again, but a fresh row
+    # scoped to the second user is still created.
+    second = client.post(
+        "/tools/entity-search",
+        json={"query": "  cached corp  ", "entity_type": "company"},
+        headers=es_stranger,
+    )
+    assert second.status_code == 200
+    assert len(calls) == 1
+    assert second.json()["id"] != first.json()["id"]
+    assert second.json()["summary"] == first.json()["summary"]
+    assert second.json()["sources"] == first.json()["sources"]
+
+    # A different entity_type is not a cache hit.
+    third = client.post(
+        "/tools/entity-search",
+        json={"query": "Cached Corp", "entity_type": "person"},
+        headers=es_owner,
+    )
+    assert third.status_code == 200
+    assert len(calls) == 2
+
+
+def test_cache_disabled_when_ttl_is_zero(es_owner, monkeypatch):
+    monkeypatch.setattr(
+        entity_search_service.settings, "SEARCH_CACHE_TTL_SECONDS", 0
+    )
+    calls = []
+    real_search_entity = entity_search_service.search_client.search_entity
+
+    def counting_search_entity(query, entity_type):
+        calls.append((query, entity_type))
+        return real_search_entity(query, entity_type)
+
+    monkeypatch.setattr(
+        entity_search_service.search_client, "search_entity", counting_search_entity
+    )
+
+    client.post(
+        "/tools/entity-search", json={"query": "No Cache Inc"}, headers=es_owner
+    )
+    client.post(
+        "/tools/entity-search", json={"query": "No Cache Inc"}, headers=es_owner
+    )
+    assert len(calls) == 2

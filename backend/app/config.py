@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 import os
 from pathlib import Path
@@ -37,6 +37,42 @@ class Settings:
     # "tavily" is a dedicated search API and needs TAVILY_API_KEY.
     SEARCH_PROVIDER: str = os.getenv("SEARCH_PROVIDER", "mock")
     TAVILY_API_KEY: str | None = os.getenv("TAVILY_API_KEY")
+
+    # How long a previous entity-search result may be reused for an
+    # identical (query, entity_type) pair instead of re-hitting the search
+    # provider. Repeats are common -- the same entity gets looked up across
+    # cases/analysts -- and the provider call is the slow, potentially
+    # metered/rate-limited part. 0 disables caching entirely. A fresh
+    # EntitySearch row is still written on every call (for per-case/user
+    # ownership and audit history); only the provider call is skipped.
+    SEARCH_CACHE_TTL_SECONDS: int = int(
+        os.getenv("SEARCH_CACHE_TTL_SECONDS", str(60 * 60))
+    )
+
+    # Where evidence attachment files (screenshots, PDFs, statements) are
+    # stored on disk. Defaults under backend/data/ (anchored on this file's
+    # location, not cwd, unlike DATABASE_URL, so it doesn't silently move if
+    # the app is launched from a different directory) -- override for a
+    # separate volume/mount in production.
+    EVIDENCE_UPLOAD_DIR: str = os.getenv(
+        "EVIDENCE_UPLOAD_DIR",
+        str(Path(__file__).resolve().parent.parent / "data" / "evidence_attachments"),
+    )
+    EVIDENCE_MAX_ATTACHMENT_SIZE_BYTES: int = int(
+        os.getenv("EVIDENCE_MAX_ATTACHMENT_SIZE_BYTES", str(20 * 1024 * 1024))
+    )
+    # Extensions allowed for evidence attachments, lowercase, without the
+    # dot. Deliberately excludes anything executable or that a browser might
+    # render/execute (html, svg, js, ...) -- an uploaded attachment is meant
+    # to be evidence, not content the app or a viewer's browser interprets.
+    EVIDENCE_ALLOWED_ATTACHMENT_EXTENSIONS: set[str] = {
+        ext.strip().lower().lstrip(".")
+        for ext in os.getenv(
+            "EVIDENCE_ALLOWED_ATTACHMENT_EXTENSIONS",
+            "png,jpg,jpeg,gif,webp,pdf,txt,csv,eml,docx,xlsx",
+        ).split(",")
+        if ext.strip()
+    }
 
     # Dev-only default -- DO NOT use in production. Override via env var.
     SECRET_KEY: str = os.getenv("SECRET_KEY", DEFAULT_INSECURE_SECRET_KEY)

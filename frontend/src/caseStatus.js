@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
- * Copyright (C) 2026 SpyrosDr
+ * Copyright (C) 2026 Spyridon Drakopoulos
  */
 
 export const STATUSES = ["open", "in_review", "closed"];

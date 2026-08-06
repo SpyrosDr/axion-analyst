@@ -1,2 +1,5 @@
 # Local SQLite database files (created at runtime, not checked in)
 *.db
+
+# Uploaded evidence attachment files (created at runtime, not checked in)
+data/evidence_attachments/

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2026 SpyrosDr
+# Copyright (C) 2026 Spyridon Drakopoulos
 
 SYSTEM_PROMPT = """You are a research assistant supporting professional investigators at the \
 Axion Analyst Investigation Workbench. Given the name of an entity (a person, organization, or \

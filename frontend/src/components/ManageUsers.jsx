@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
- * Copyright (C) 2026 SpyrosDr
+ * Copyright (C) 2026 Spyridon Drakopoulos
  */
 
 import { useEffect, useState } from "react";
@@ -55,16 +55,20 @@ function ManageUsers() {
 
   async function handleRoleChange(userId, globalRole) {
     setSavingUserId(userId);
+    let changeError = null;
     try {
       await updateUserRole(userId, globalRole);
     } catch (err) {
-      setUsersError(err.message);
-    } finally {
-      // Refresh either way so a failed change snaps the select back to the
-      // server's actual value instead of showing an unsaved one.
-      await refreshUsers();
-      setSavingUserId(null);
+      changeError = err.message;
     }
+    // Refresh either way so a failed change snaps the select back to the
+    // server's actual value instead of showing an unsaved one. Apply the
+    // failure message *after* the refresh, not before -- refreshUsers()
+    // clears usersError on its own success path, which would otherwise
+    // wipe out the error we just set before it ever renders.
+    await refreshUsers();
+    if (changeError) setUsersError(changeError);
+    setSavingUserId(null);
   }
 
   return (

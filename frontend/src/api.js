@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
- * Copyright (C) 2026 SpyrosDr
+ * Copyright (C) 2026 Spyridon Drakopoulos
  */
 
 // Auth is an httpOnly session cookie the backend sets on /auth/login --
@@ -30,7 +30,13 @@ async function errorDetail(res) {
 }
 
 async function request(path, options = {}) {
-  const headers = { "Content-Type": "application/json", ...options.headers };
+  // FormData (file uploads) must NOT get an explicit Content-Type -- the
+  // browser sets one itself, including the multipart boundary, and an
+  // explicit "application/json" here would break the upload silently.
+  const isFormData = options.body instanceof FormData;
+  const headers = isFormData
+    ? { ...options.headers }
+    : { "Content-Type": "application/json", ...options.headers };
 
   const res = await fetch(`${BASE}${path}`, {
     ...options,
@@ -175,6 +181,32 @@ export function addEvidence(caseId, { title, type, content }) {
     method: "POST",
     body: JSON.stringify({ title, type, content }),
   });
+}
+
+export function listAttachments(caseId, evidenceId) {
+  return request(`/cases/${caseId}/evidence/${evidenceId}/attachments`);
+}
+
+export function uploadAttachment(caseId, evidenceId, file) {
+  const body = new FormData();
+  body.append("file", file);
+  return request(`/cases/${caseId}/evidence/${evidenceId}/attachments`, {
+    method: "POST",
+    body,
+  });
+}
+
+export function deleteAttachment(caseId, evidenceId, attachmentId) {
+  return request(
+    `/cases/${caseId}/evidence/${evidenceId}/attachments/${attachmentId}`,
+    { method: "DELETE" }
+  );
+}
+
+export function attachmentDownloadUrl(caseId, evidenceId, attachmentId) {
+  // Plain URL, not a `request()` call -- this is used as an <a href> so the
+  // browser navigates/downloads directly, sending the session cookie itself.
+  return `${BASE}/cases/${caseId}/evidence/${evidenceId}/attachments/${attachmentId}/download`;
 }
 
 export function runAnalysis(caseId) {
