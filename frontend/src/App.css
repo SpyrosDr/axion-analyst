@@ -790,6 +790,25 @@ select.status-select {
   margin-bottom: 2px;
 }
 
+.evidence-source {
+  display: block;
+  margin-top: 5px;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.review-notice {
+  margin: 16px 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--color-warning);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--color-warning-bg);
+  color: #7c3c06;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
 /* Report */
 
 .report-header {

@@ -40,6 +40,10 @@ function ResultsSections({ caseData }) {
   const riskAssessment = latestById(caseData.risk_assessments);
   const report = latestById(caseData.reports);
   const entityGroups = groupByType(caseData.entities);
+  const evidenceLabel = (id) => {
+    const evidence = caseData.evidence_items.find((item) => item.id === id);
+    return evidence ? evidence.title || `Evidence #${id}` : null;
+  };
 
   return (
     <>
@@ -55,8 +59,9 @@ function ResultsSections({ caseData }) {
                 <h4>{type.replace(/_/g, " ")}</h4>
                 <div className="chip-row">
                   {items.map((entity) => (
-                    <span className="chip" key={entity.id}>
+                    <span className="chip" key={entity.id} title={evidenceLabel(entity.source_evidence_id) || "Source not assigned"}>
                       {entity.value}
+                      {evidenceLabel(entity.source_evidence_id) && " · source"}
                     </span>
                   ))}
                 </div>
@@ -77,6 +82,9 @@ function ResultsSections({ caseData }) {
               <li key={event.id}>
                 <span className="timeline-date">{formatTimelineDate(event)}</span>
                 {event.description}
+                {evidenceLabel(event.source_evidence_id) && (
+                  <span className="evidence-source">Source: {evidenceLabel(event.source_evidence_id)}</span>
+                )}
               </li>
             ))}
           </ul>
@@ -85,7 +93,7 @@ function ResultsSections({ caseData }) {
 
       {riskAssessment && (
         <div className="card result section-block">
-          <h3>Risk Assessment</h3>
+          <h3>Risk signals for investigator review</h3>
           <span className={riskBadgeClass(riskAssessment.risk_level)}>
             {riskAssessment.risk_level} risk
           </span>
@@ -96,6 +104,7 @@ function ResultsSections({ caseData }) {
               <li key={index}>{item}</li>
             ))}
           </ul>
+          <p className="review-notice">These are draft signals, not determinations. Confirm, amend, or reject them against the source evidence before relying on the report.</p>
           <h4>Next steps</h4>
           <ul>
             {riskAssessment.next_steps.map((item, index) => (
@@ -108,7 +117,7 @@ function ResultsSections({ caseData }) {
       {report && (
         <div className="card result section-block" id="printable-report">
           <div className="report-header">
-            <h3>Report</h3>
+            <h3>Draft investigation report</h3>
             <button
               type="button"
               className="btn-secondary no-print"
@@ -121,6 +130,7 @@ function ResultsSections({ caseData }) {
           <p className="report-print-title">
             {caseData.context} — Case #{caseData.id}
           </p>
+          <p className="review-notice">Draft for investigator review. Validate material statements against the cited evidence and record the final judgement before export.</p>
           {Object.entries(report.sections).map(([name, text]) => (
             <div className="report-section" key={name}>
               <h4>{name.replace(/_/g, " ")}</h4>
