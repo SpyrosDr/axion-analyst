@@ -1,13 +1,14 @@
-# Axion Analyst Investigation Workbench
+# Axion Analyst — Investigation Case-file Accelerator
 
-Axion Analyst Investigation Workbench is an AI-assisted fraud investigation tool that helps investigators structure, assess, and document fraud-related cases.
+Axion Analyst helps financial-crime, compliance, and investigation teams turn a small, mixed case file into an evidence-linked chronology, reviewable risk signals, and a draft investigation report. It reduces the administrative first pass while keeping judgement, decisions, and accountability with the investigator.
 
 It is not a fraud detection engine, AML transaction monitoring system, or alert-generation platform. It focuses on the investigation phase after a suspicious case, alert, concern, or internal issue has already been identified. The AI supports the investigator — human review remains central to all conclusions.
 
 ## Features
 
 * **Case management** — create cases with context, description, and evidence items; add evidence as an investigation develops. Evidence items support file attachments (screenshots, PDFs, statements) alongside text.
-* **AI-assisted analysis** — one click runs entity extraction, timeline construction, risk assessment, and draft report generation. All four outputs come from a single AI analysis, so they are internally consistent.
+* **AI-assisted analysis** — one click runs entity extraction, timeline construction, risk-signal assessment, and draft report generation. All four outputs come from a single AI analysis, so they are internally consistent.
+* **Evidence-led output** — timeline events and mock-extracted entities retain their source evidence reference; the interface makes draft status explicit so outputs are investigated, not treated as autonomous conclusions.
 * **Multi-user with per-case sharing** — admin-created accounts, JWT login, cases are private to their owner by default, and owners can add colleagues as collaborators with full view/edit access.
 * **Quick Assess** — a stateless one-shot assessment form for a fast first read on a case, with nothing persisted.
 * **Pluggable AI providers** — `mock` (built-in keyword/regex heuristics, no API key needed), `anthropic` (Claude), or `openai`, selected via one environment variable.
@@ -33,7 +34,8 @@ pip install -r requirements.txt
 # Create the first admin account (required before anything else works):
 python -m app.create_admin <username> <password>
 
-# Optional: seed three fake demo cases (owned by the first admin):
+# Optional: seed four fictional demo cases (owned by the first admin), including
+# the flagship vendor-payment / conflict-of-interest case:
 python -m app.sample_data
 
 uvicorn app.main:app --reload
@@ -117,6 +119,8 @@ This repository should contain only source code and fake sample evidence. It sho
 * real financial records,
 * confidential evidence,
 * production credentials.
+
+The flagship case at `backend/data/sample_cases/vendor_payment_conflict_case.json` is entirely synthetic. It contains a vendor onboarding file, corporate-registration extract, emails, transaction extracts, an interview note, and a bank-account comparison so the demo can be run end-to-end without customer material.
 
 Local secrets belong in `backend/.env`, which must not be committed. Public configuration examples live in `backend/.env.example`.
 

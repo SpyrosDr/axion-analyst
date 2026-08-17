@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Spyridon Drakopoulos
+
 """add revoked_tokens table
 
 Revision ID: bee5c8e55800

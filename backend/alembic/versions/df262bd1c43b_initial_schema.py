@@ -1,7 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Spyridon Drakopoulos
+
 """initial schema
 
 Revision ID: df262bd1c43b
-Revises: 
+Revises:
 Create Date: 2026-08-05 11:12:50.348162
 
 """

@@ -1,0 +1,18 @@
+{
+  "context": "Fictional case — possible conflict of interest and suspicious vendor payments",
+  "description": "An internal investigator is reviewing payments to a recently onboarded consulting vendor after a finance analyst raised concerns about incomplete support, an approval exception, and a possible link to an employee. All names, organisations, accounts, and events in this case are synthetic.",
+  "evidence_items": [
+    "Vendor onboarding form | 2025-01-08: Northstar Advisory FZE was onboarded as a consulting vendor by Procurement Manager Daniel Reeves. The form lists a Dubai, UAE correspondence address and bank account #77819042. Beneficial-owner field is blank pending supporting documentation.",
+    "Corporate-registration extract | 2025-01-09: Northstar Advisory FZE is registered in Dubai. Director: Maya Bennett. Registered address: Suite 401, Al Noor Tower, Dubai. The extract does not identify a beneficial owner.",
+    "Employee conflict declaration | 2025-01-10: Daniel Reeves submitted the annual conflict-of-interest declaration. He recorded no outside business interests and no personal relationships with current or prospective vendors.",
+    "Email: Daniel Reeves to Procurement Operations | 2025-01-14: Please expedite Northstar's onboarding. They are needed for the Orion market-entry project and we cannot wait for the usual vendor checks.",
+    "Email: Procurement Operations to Daniel Reeves | 2025-01-15: The vendor file is incomplete. Please provide the executed statement of work, beneficial-owner confirmation, and second approver before payments can be released.",
+    "Transaction extract | 2025-01-31: Payment TXN-4401, USD 48,750.00, to Northstar Advisory FZE, account #77819042. Payment was approved by Daniel Reeves under an exception workflow. Reference: Orion advisory services — January.",
+    "Email: Daniel Reeves to Finance Director Priya Shah | 2025-02-01: Please approve the Northstar exception today. The deliverables are sensitive and I will send the paperwork shortly. Priya replied: Approved as a one-off based on your confirmation.",
+    "Transaction extract | 2025-02-28: Payment TXN-4478, USD 49,500.00, to Northstar Advisory FZE, account #77819042. The payment was submitted at 22:47 on month-end. No statement of work or invoice was attached in the accounts-payable record.",
+    "Email: Finance Analyst Sofia Marin to Internal Audit | 2025-03-03: I cannot locate support for either Northstar payment. Daniel has asked that we do not contact the vendor directly because of commercial sensitivity.",
+    "Interview note: Sofia Marin | 2025-03-05: Sofia stated that Daniel Reeves personally requested both payments and said the usual two-person approval should be bypassed. She was not aware of a signed contract.",
+    "Bank-account comparison | 2025-03-06: Northstar account #77819042 shares the same account holder address and contact phone number as a historical reimbursement account declared by Daniel Reeves. This is an unverified match requiring independent confirmation.",
+    "Email: Daniel Reeves to Maya Bennett | 2025-03-07: Please keep the Orion arrangement between us until the board update. I will sort the missing paperwork next week. Maya replied: Understood, but Finance keeps asking for the signed scope."
+  ]
+}
