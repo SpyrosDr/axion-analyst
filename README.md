@@ -4,6 +4,8 @@ Axion Analyst helps financial-crime, compliance, and investigation teams turn a 
 
 It is not a fraud detection engine, AML transaction monitoring system, or alert-generation platform. It focuses on the investigation phase after a suspicious case, alert, concern, or internal issue has already been identified. The AI supports the investigator — human review remains central to all conclusions.
 
+New to the app? See the [How-To Guide](docs/how-to-guide.md) for task-focused instructions on sign-in, cases, evidence, entity search, analysis results, collaborators, and user management.
+
 ## Features
 
 * **Case management** — create cases with context, description, and evidence items; add evidence as an investigation develops. Evidence items support file attachments (screenshots, PDFs, statements) alongside text.
